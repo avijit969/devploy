@@ -31,7 +31,6 @@ export default function Home() {
       setMessage(`✅ Deployed to: ${response.data.url}`);
       setDeployedUrl(response.data.url);
     } catch (err: any) {
-      console.error(err);
       setMessage("❌ Deployment failed");
     } finally {
       setLoading(false);
