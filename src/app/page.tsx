@@ -27,7 +27,7 @@ export default function Home() {
     setMessage("");
     setDeployedUrl("");
     try {
-      const response = await axios.post("http://localhost:3001/api/deploy", data);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/deploy`, data);
       setMessage(`✅ Deployed to: ${response.data.url}`);
       setDeployedUrl(response.data.url);
     } catch (err: any) {
