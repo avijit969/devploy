@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
-
+const protectedRoutes = ["/dashboard"];
 export async function middleware(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
 
   // Redirect to login if not authenticated
-  if (!sessionCookie) {
+  if (!sessionCookie && protectedRoutes.includes(request.nextUrl.pathname)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
