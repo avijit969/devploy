@@ -25,7 +25,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
-    const [perPage] = useState(5); // you can change this
+    const [perPage] = useState(5);
     const [totalPages, setTotalPages] = useState(1);
     const router = useRouter();
     useEffect(() => {
@@ -34,8 +34,6 @@ export default function Dashboard() {
             try {
                 const res = await fetch(`/api/repos?page=${page}&per_page=${perPage}`);
                 const data = await res.json();
-
-                // Assuming API returns { repos: Repo[], total: number }
                 setRepos(data.repos);
                 setTotalPages(data.pagination.hasNextPage ? page + 1 : page);
             } catch (err) {
@@ -111,7 +109,7 @@ export default function Dashboard() {
                                     </div>
                                     <Button
                                         onClick={() => {
-                                            router.push(`/deploy/${repo.clone_url}`);
+                                            router.push(`/create-new/import?github-url=${repo.clone_url}`);
                                         }}
                                     >
                                         Import

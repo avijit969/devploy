@@ -13,7 +13,7 @@ export async function GET(req: Request) {
         userId: session.session.userId,
       },
     });
-
+    console.log("GitHub access token:", accessToken);
     if (!accessToken) {
       return NextResponse.json(
         { error: "No GitHub access token found" },

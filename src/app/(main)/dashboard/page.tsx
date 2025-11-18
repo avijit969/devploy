@@ -1,19 +1,21 @@
 "use client";
 
+import { getUserProjects } from "@/lib/server/actions";
 import useAuthStore from "@/store/auth";
 import { createAuthClient } from "better-auth/react";
-import { PlusIcon } from "lucide-react";
+import { MenuIcon, PlusIcon, EllipsisVertical, Ellipsis } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
-
-const { useSession } = createAuthClient();
-
-const projects: { id: string; name: string; repo: string }[] = [];
+import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton"
+import ProjectCard from "@/components/project-card";
+const { useSession, getAccessToken } = createAuthClient();
 
 export default function Dashboard() {
+
     const { data: session } = useSession();
     const { login } = useAuthStore();
-
+    const [projects, setProjects] = useState<{ id: string; name: string; repo: string, liveUrl: string }[]>([]);
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         if (session) {
             login({
@@ -24,9 +26,22 @@ export default function Dashboard() {
             });
         }
     }, [session, login]);
+    useEffect(() => {
+        setLoading(true);
+        getUserProjects().then((data) => {
+            setProjects(
+                data.map((project: any) => ({
+                    id: project.id.toString(),
+                    name: project.name,
+                    repo: project.repo_url,
+                    liveUrl: project.live_url,
+                }))
+            );
+        }).finally(() => setLoading(false));
 
+    }, []);
     return (
-        <main className="min-h-screen bg-white text-neutral-900 dark:bg-neutral-900 dark:text-white p-4 transition-colors">
+        <main className="min-h-screen bg-white text-neutral-900 dark:bg-black dark:text-white p-4 transition-colors">
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="lg:text-2xl md:text-xl text-sm font-semibold">
@@ -40,11 +55,16 @@ export default function Dashboard() {
                     <p className="lg:text-xl text-xs">New Project</p>
                 </Link>
             </div>
-
-            {/* Projects Section */}
-            {!projects.length ? (
+            {loading && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <Skeleton className=" h-32 mb-4" />
+                    <Skeleton className=" h-32 mb-4" />
+                    <Skeleton className=" h-32 mb-4" />
+                </div>
+            )}
+            {!loading && !projects.length ? (
                 <div className="flex flex-col items-center justify-center mt-32 gap-4">
-                    <div className="rounded-full bg-neutral-100 dark:bg-neutral-900 p-6 border border-neutral-300 dark:border-neutral-800">
+                    <div className="rounded-full bg-neutral-100 dark:bg-neutral-900 p-6 border border-neutral-300 dark:border-neutral-900">
                         <PlusIcon className="h-10 w-10 text-neutral-500 dark:text-neutral-400" />
                     </div>
                     <h2 className="text-lg font-medium">No projects yet</h2>
@@ -61,18 +81,7 @@ export default function Dashboard() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {projects.map((project) => (
-                        <Link
-                            key={project.id}
-                            href={`/project/${project.id}`}
-                            className="group rounded-lg border border-neutral-300 bg-neutral-100 p-6 hover:border-neutral-400 transition dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-600"
-                        >
-                            <h3 className="text-lg font-semibold group-hover:text-neutral-900 dark:group-hover:text-white text-neutral-700 dark:text-neutral-300">
-                                {project.name}
-                            </h3>
-                            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                                {project.repo}
-                            </p>
-                        </Link>
+                        <ProjectCard key={project.id} project={project} />
                     ))}
                 </div>
             )}

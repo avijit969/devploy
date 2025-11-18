@@ -13,10 +13,11 @@ function Login() {
     authClient.signIn.social({
       provider: "github",
       callbackURL: "/dashboard",
+
       fetchOptions: {
         onSuccess: () => {
           router.push("/dashboard");
-          toast.success("Logged in successfully");
+          // toast.success("Logged in successfully");
         },
         onError: () => {
           toast.error("Failed to log in");
